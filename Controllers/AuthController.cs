@@ -63,7 +63,7 @@ public class AuthController : ControllerBase
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(AuthResultDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto dto) // 👇 ДОДАНО
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -87,7 +87,7 @@ public class AuthController : ControllerBase
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Revoke([FromBody] RevokeTokenRequestDto dto) // 👇 ДОДАНО
+    public async Task<IActionResult> Revoke([FromBody] RevokeTokenRequestDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
