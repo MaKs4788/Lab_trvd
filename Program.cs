@@ -2,7 +2,6 @@ using LabsTRVD.Data;
 using LabsTRVD.Interfaces.Repositories;
 using LabsTRVD.Interfaces.Role;
 using LabsTRVD.Interfaces.Services;
-using LabsTRVD.Json;
 using LabsTRVD.Mapping;
 using LabsTRVD.Repositories;
 using LabsTRVD.Services;
@@ -79,8 +78,6 @@ builder.Services.AddControllers()
         jsonOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         jsonOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         jsonOptions.WriteIndented = false;
-        jsonOptions.Converters.Add(new EuropeanDateTimeConverter());
-        jsonOptions.Converters.Add(new EuropeanNullableDateTimeConverter());
         jsonOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
@@ -107,7 +104,18 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Dev", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+app.UseCors("Dev");
 
 // Swagger (у API-проєктах зазвичай вмикають і в продакшені, але можна обмежити)
 app.UseSwagger();

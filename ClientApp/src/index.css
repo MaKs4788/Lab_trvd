@@ -1,0 +1,7 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.modal.show.d-block {
+  display: block !important;
+}
