@@ -1,0 +1,45 @@
+# =========================
+# ASP .NET
+# =========================
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+
+# Logs
+*.log
+
+# =========================
+# React / Vite
+# =========================
+ClientApp/node_modules/
+ClientApp/dist/
+node_modules/
+
+# =========================
+# Environment / Secrets
+# =========================
+appsettings.json
+appsettings.Development.json
+appsettings.Local.json
+
+.env
+.env.*
+
+# =========================
+# Database (SQLite etc.)
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
