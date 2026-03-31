@@ -5,18 +5,21 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
-// Додаємо токен до кожного запиту
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('accessToken')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
-// Автоматичний refresh токену при 401
 api.interceptors.response.use(
   res => res,
   async error => {
     const original = error.config
+
+    if (original.url?.includes('/auth/')) {
+      return Promise.reject(error)
+    }
+
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true
       try {

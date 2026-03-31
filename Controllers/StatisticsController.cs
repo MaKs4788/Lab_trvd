@@ -1,5 +1,4 @@
 using LabsTRVD.Data;
-using LabsTRVD.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +27,7 @@ namespace LabsTRVD.Controllers
             {
                 var totalUsers = await _context.Users.CountAsync();
                 var activeUsers = await _context.Users
-                    .Where(u => u.LastLoginAt.HasValue && 
+                    .Where(u => u.LastLoginAt.HasValue &&
                            u.LastLoginAt >= DateTime.Now.AddDays(-30))
                     .CountAsync();
                 var blockedUsers = await _context.Users.Where(u => u.IsBlocked).CountAsync();
@@ -37,8 +36,8 @@ namespace LabsTRVD.Controllers
                 var totalCategories = await _context.Categories.CountAsync();
                 var totalBudgets = await _context.Budgets.CountAsync();
 
-                var totalExpenseAmount = await _context.Expenses.SumAsync(e => e.Amount);
-                var totalIncomeAmount = await _context.Incomes.SumAsync(i => i.Amount);
+                var totalExpenseAmount = (double)await _context.Expenses.SumAsync(e => e.Amount);
+                var totalIncomeAmount = (double)await _context.Incomes.SumAsync(i => i.Amount);
 
                 return Ok(new
                 {
@@ -81,11 +80,11 @@ namespace LabsTRVD.Controllers
                     .Where(u => u.CreatedAt >= thirtyDaysAgo)
                     .CountAsync();
 
-                var newExpenses = await _context.Expenses
+                var newExpenses = (double)await _context.Expenses
                     .Where(e => e.Date >= thirtyDaysAgo)
                     .SumAsync(e => e.Amount);
 
-                var newIncomes = await _context.Incomes
+                var newIncomes = (double)await _context.Incomes
                     .Where(i => i.Date >= thirtyDaysAgo)
                     .SumAsync(i => i.Amount);
 
@@ -111,19 +110,23 @@ namespace LabsTRVD.Controllers
         {
             try
             {
-                var topCategories = await _context.Expenses
-                    .GroupBy(e => new { e.CategoryId, e.Category.Name })
+                var expenses = await _context.Expenses
+                    .Include(e => e.Category)
+                    .ToListAsync();
+
+                var topCategories = expenses
+                    .GroupBy(e => new { e.CategoryId, Name = e.Category?.Name ?? "Без категорії" })
                     .Select(g => new
                     {
                         categoryId = g.Key.CategoryId,
-                        category = g.Key.Name ?? "Без категорії",
-                        totalAmount = g.Sum(e => e.Amount),
+                        category = g.Key.Name,
+                        totalAmount = g.Sum(e => (double)e.Amount),
                         count = g.Count(),
-                        averageAmount = g.Average(e => e.Amount)
+                        averageAmount = g.Average(e => (double)e.Amount)
                     })
                     .OrderByDescending(x => x.totalAmount)
                     .Take(limit)
-                    .ToListAsync();
+                    .ToList();
 
                 return Ok(topCategories);
             }
@@ -140,20 +143,23 @@ namespace LabsTRVD.Controllers
         {
             try
             {
-                var stats = await _context.Users
-                    .Select(u => new
-                    {
-                        u.UserId,
-                        u.Email,
-                        u.Role,
-                        expenseCount = u.Expenses.Count,
-                        incomeCount = u.Incomes.Count,
-                        totalExpenses = u.Expenses.Sum(e => e.Amount),
-                        totalIncomes = u.Incomes.Sum(i => i.Amount),
-                        createdAt = u.CreatedAt,
-                        lastLoginAt = u.LastLoginAt
-                    })
+                var users = await _context.Users
+                    .Include(u => u.Expenses)
+                    .Include(u => u.Incomes)
                     .ToListAsync();
+
+                var stats = users.Select(u => new
+                {
+                    u.UserId,
+                    u.Email,
+                    u.Role,
+                    expenseCount = u.Expenses.Count,
+                    incomeCount = u.Incomes.Count,
+                    totalExpenses = (double)u.Expenses.Sum(e => e.Amount),
+                    totalIncomes = (double)u.Incomes.Sum(i => i.Amount),
+                    createdAt = u.CreatedAt,
+                    lastLoginAt = u.LastLoginAt
+                }).ToList();
 
                 return Ok(stats);
             }
@@ -170,6 +176,21 @@ namespace LabsTRVD.Controllers
         {
             try
             {
+                var expenses = await _context.Expenses
+                    .Include(e => e.Category)
+                    .ToListAsync();
+
+                var topCategories = expenses
+                    .GroupBy(e => e.Category?.Name ?? "Без категорії")
+                    .Select(g => new
+                    {
+                        category = g.Key,
+                        total = (double)g.Sum(e => e.Amount),
+                        count = g.Count()
+                    })
+                    .OrderByDescending(x => x.total)
+                    .ToList();
+
                 var report = new
                 {
                     generatedAt = DateTime.Now,
@@ -177,16 +198,7 @@ namespace LabsTRVD.Controllers
                     users = await _context.Users
                         .Select(u => new { u.UserId, u.Email, u.Role, u.CreatedAt })
                         .ToListAsync(),
-                    topCategories = await _context.Expenses
-                        .GroupBy(e => e.Category.Name)
-                        .Select(g => new
-                        {
-                            category = g.Key,
-                            total = g.Sum(e => e.Amount),
-                            count = g.Count()
-                        })
-                        .OrderByDescending(x => x.total)
-                        .ToListAsync()
+                    topCategories
                 };
 
                 return Ok(report);
@@ -207,8 +219,8 @@ namespace LabsTRVD.Controllers
             {
                 totalUsers,
                 totalTransactions = totalExpenses + totalIncomes,
-                totalExpenseAmount = await _context.Expenses.SumAsync(e => e.Amount),
-                totalIncomeAmount = await _context.Incomes.SumAsync(i => i.Amount)
+                totalExpenseAmount = (double)await _context.Expenses.SumAsync(e => e.Amount),
+                totalIncomeAmount = (double)await _context.Incomes.SumAsync(i => i.Amount)
             };
         }
     }

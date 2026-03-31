@@ -1,3 +1,4 @@
+using Lab_trvd.Interfaces.Services;
 using LabsTRVD.Data;
 using LabsTRVD.Interfaces.Repositories;
 using LabsTRVD.Interfaces.Role;
@@ -32,6 +33,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg =>
@@ -117,7 +119,6 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 app.UseCors("Dev");
 
-// Swagger (у API-проєктах зазвичай вмикають і в продакшені, але можна обмежити)
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -141,16 +142,18 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
 
-    if (!db.Users.Any(u => u.Email == "test@example.com"))
+    var adminEmail = builder.Configuration["AdminSeed:Email"];
+    var adminPassword = builder.Configuration["AdminSeed:Password"];
+
+    if (!string.IsNullOrEmpty(adminEmail) && !db.Users.Any(u => u.Email == adminEmail))
     {
-        var user = new LabsTRVD.Entities.User
+        db.Users.Add(new LabsTRVD.Entities.User
         {
-            UserId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
-            Email = "test@example.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("TestPass123!"),
+            UserId = Guid.NewGuid(),
+            Email = adminEmail,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
             Role = "Admin"
-        };
-        db.Users.Add(user);
+        });
         db.SaveChanges();
     }
 }

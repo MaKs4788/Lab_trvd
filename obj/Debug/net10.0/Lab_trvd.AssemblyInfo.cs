@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Lab_trvd")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+71a140ea42997a4dbbae6f576157c3f3801b7ce3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+67739557edd156fcd1489f3e266509007bbd376f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Lab_trvd")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Lab_trvd")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

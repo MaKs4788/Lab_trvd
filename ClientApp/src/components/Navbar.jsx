@@ -42,9 +42,6 @@ const Navbar = () => {
     <li className="nav-item">
       <Link className={isActive('/admin')} to="/admin">Адмін-панель</Link>
     </li>
-    <li className="nav-item">
-      <Link className={isActive('/admin/settings')} to="/admin/settings">Статистика</Link>
-    </li>
   </>
 )}
         </ul>

@@ -74,7 +74,7 @@ const ExpensesPage = () => {
   return (
     <Layout>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 className="mb-0">💸 Витрати</h4>
+        <h4 className="mb-0">Витрати</h4>
         <button className="btn btn-primary" onClick={openCreate}>+ Додати</button>
       </div>
 
@@ -115,7 +115,6 @@ const ExpensesPage = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="modal show d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog">

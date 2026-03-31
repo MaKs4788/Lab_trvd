@@ -62,7 +62,6 @@ const BudgetsPage = () => {
         </button>
       </div>
 
-      {/* Вибір місяця/року */}
       <div className="card border-0 shadow-sm p-3 mb-4">
         <div className="row g-2 align-items-center">
           <div className="col-auto">

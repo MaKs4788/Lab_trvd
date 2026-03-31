@@ -8,16 +8,22 @@ const RegisterPage = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
+  const validate = () => {
+    if (!form.email.trim()) return 'Введіть email'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return 'Невірний формат email'
+    if (!form.password) return 'Введіть пароль'
+    if (form.password.length < 6) return 'Пароль має бути мінімум 6 символів'
+    if (!/[A-Z]/.test(form.password)) return 'Пароль має містити хоча б одну велику літеру'
+    if (!/[0-9]/.test(form.password)) return 'Пароль має містити хоча б одну цифру'
+    if (form.password !== form.confirmPassword) return 'Паролі не співпадають'
+    return null
+  }
 
-    if (form.password !== form.confirmPassword) {
-      setError('Паролі не співпадають')
-      return
-    }
-    if (form.password.length < 6) {
-      setError('Пароль має бути мінімум 6 символів')
+  const handleSubmit = async () => {
+    setError('')
+    const validationError = validate()
+    if (validationError) {
+      setError(validationError)
       return
     }
 
@@ -32,24 +38,37 @@ const RegisterPage = () => {
     }
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSubmit()
+  }
+
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
       <div className="card shadow p-4" style={{ width: '100%', maxWidth: 420 }}>
-        <h3 className="text-center mb-4 fw-bold">💰 FinanceApp</h3>
+        <h3 className="text-center mb-4 fw-bold">Фінанси Сторожук</h3>
         <h5 className="text-center text-muted mb-4">Реєстрація</h5>
-        {error && <div className="alert alert-danger">{error}</div>}
-        <form onSubmit={handleSubmit}>
+
+        {error && (
+          <div className="alert alert-danger d-flex justify-content-between align-items-center">
+            <span>{error}</span>
+            <button type="button" className="btn-close" onClick={() => setError('')} />
+          </div>
+        )}
+
+        <form onSubmit={e => e.preventDefault()}>
           <div className="mb-3">
             <label className="form-label">Email</label>
             <input
-              type="email"
+              type="text"
               className="form-control"
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
-              required
+              onKeyDown={handleKeyDown}
               placeholder="your@email.com"
+              autoComplete="off"
             />
           </div>
+
           <div className="mb-3">
             <label className="form-label">Пароль</label>
             <input
@@ -57,10 +76,15 @@ const RegisterPage = () => {
               className="form-control"
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
-              required
+              onKeyDown={handleKeyDown}
               placeholder="••••••••"
+              autoComplete="off"
             />
+            <div className="form-text text-muted">
+              Мінімум 6 символів, одна велика літера та цифра
+            </div>
           </div>
+
           <div className="mb-3">
             <label className="form-label">Підтвердити пароль</label>
             <input
@@ -68,22 +92,29 @@ const RegisterPage = () => {
               className="form-control"
               value={form.confirmPassword}
               onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
-              required
+              onKeyDown={handleKeyDown}
               placeholder="••••••••"
+              autoComplete="off"
             />
           </div>
+
           <button
-            type="submit"
+            type="button"
             className="btn btn-success w-100 mt-2"
+            onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? 'Реєструємо...' : 'Зареєструватись'}
+            {loading
+              ? <><span className="spinner-border spinner-border-sm me-2" />Реєструємо...</>
+              : 'Зареєструватись'
+            }
           </button>
-          <div className="text-center mt-3">
-            <span className="text-muted">Вже є акаунт? </span>
-            <Link to="/login">Увійти</Link>
-          </div>
         </form>
+
+        <div className="text-center mt-3">
+          <span className="text-muted">Вже є акаунт? </span>
+          <Link to="/login">Увійти</Link>
+        </div>
       </div>
     </div>
   )

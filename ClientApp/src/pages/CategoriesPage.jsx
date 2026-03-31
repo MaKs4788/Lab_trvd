@@ -60,7 +60,7 @@ const CategoriesPage = () => {
   return (
     <Layout>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 className="mb-0">🏷️ Категорії</h4>
+        <h4 className="mb-0">Категорії</h4>
         <button className="btn btn-primary" onClick={openCreate}>+ Додати</button>
       </div>
 
